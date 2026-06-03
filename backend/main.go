@@ -1,25 +1,18 @@
 package main
 
 import (
-	"fmt"
+	"log"
 	"net/http"
 )
 
-func hello(w http.ResponseWriter, req *http.Request) {
-	fmt.Fprintf(w, "hello\n")
-}
-
-func headers(w http.ResponseWriter, req *http.Request) {
-	for name, headers := range req.Header {
-		for _, h := range headers {
-			fmt.Fprintf(w, "%v: %v\n", name, h)
-		}
-	}
-}
-
 func main() {
-	fmt.Println("Starting Server...")
-	http.HandleFunc("/", hello)
-	http.HandleFunc("/headers", headers)
-	http.ListenAndServe(":5000", nil)
+	// register handlers from lobby.go and game.go (same package)
+	http.HandleFunc("/create", createGameHandler)
+	http.HandleFunc("/join", joinGameHandler)
+	http.HandleFunc("/ws", gameWSHandler)
+
+	log.Println("server listening on :5000")
+	if err := http.ListenAndServe(":5000", nil); err != nil {
+		log.Fatal(err)
+	}
 }
