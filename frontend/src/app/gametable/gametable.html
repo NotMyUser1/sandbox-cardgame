@@ -1,0 +1,21 @@
+<div class="gametable-container">
+	<h2>Game {{ gameId }}, Player {{ playerId }}</h2>
+
+	@if (error()) {
+		<div class="error">{{ error() }}</div>
+	}
+
+	<div class="message">
+		<pre>{{ message() }}</pre>
+	</div>
+
+	<form [formGroup]="form" (ngSubmit)="sendMessage()" class="send-form">
+		<textarea
+			formControlName="json"
+			placeholder='Enter JSON to send, e.g. {"type":"play_card","index":1}'
+			rows="4"
+			cols="50"
+		></textarea>
+		<button type="submit" [disabled]="form.invalid">Send</button>
+	</form>
+</div>

@@ -5,7 +5,7 @@ Webanwendung für ein Sandbox-Kartenspiel bei dem Nutzer eigene Kartendecks hoch
 ## Lokale Entwicklung
 
 ```shell
-go run ./backend/main.go
+cd backend && go run .
 ```
 
 ## Docker
