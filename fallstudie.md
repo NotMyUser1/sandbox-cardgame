@@ -79,10 +79,10 @@ Risiken:
 [ ] Wenn der Rest fertig ist
 
 ## Folienaufteilung
-Jannes:
-- Lösungsansatz
-Yannik:
-- Thema, Problemdefinition
-- User Story
+- Jannes:
+	- Lösungsansatz
+- Yannik:
+	- Thema, Problemdefinition
+	- User Story
 
 Bis zur nächster Woche etwas haben
