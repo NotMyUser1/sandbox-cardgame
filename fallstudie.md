@@ -12,7 +12,7 @@
 
 ## Zielsetzung
 Leitfrage:
-- Wie lässt sich ein Online-Kartenspiel designen, womit man die meisten Hausregeln abbilden kann
+- Wie lässt sich ein Online-Kartenspiel designen, womit sich die meisten Hausregeln abbilden lassen?
 
 ## Lösungsvorschlag
 - Spielkonzept:
@@ -57,6 +57,7 @@ Leitfrage:
 
 		
 ## Stakeholder-Analyse
+(Passt der Titel? Eine Stakeholder-Analyse dient dazu, alle Personen, Gruppen oder Organisationen zu identifizieren, die von einem Projekt betroffen sind oder es beeinflussen können.)
 - 1 User Story
 	- Enthusiastischer Kartenspieler
 	- Interessantes Profil vom Menschen
