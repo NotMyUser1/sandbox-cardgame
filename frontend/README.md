@@ -12,6 +12,10 @@ ng serve
 
 Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
 
+## Lobby page
+
+The lobby at `/` lets players enter a name and optional game ID. If no ID is provided, the frontend creates a new game and then joins it before navigating to `/game`.
+
 ## Code scaffolding
 
 Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
