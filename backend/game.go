@@ -1,6 +1,8 @@
 package main
 
 import (
+	"encoding/json/v2"
+	"fmt"
 	"log"
 	"net/http"
 	"sync"
@@ -10,8 +12,9 @@ import (
 )
 
 type clientMessage struct {
-	Type  string `json:"type"`
-	Index *int   `json:"index,omitempty"`
+	Type         string       `json:"type"`
+	Index        *int         `json:"index,omitempty"`
+	CardLocation CardLocation `json:"destination,omitempty"`
 }
 
 type serverMessage struct {
@@ -134,6 +137,7 @@ func gameWSHandler(w http.ResponseWriter, r *http.Request) {
 	for {
 		var msg clientMessage
 		if err := conn.ReadJSON(&msg); err != nil {
+			_ = ws.writeJSON(serverMessage{Type: "fatal_error", Error: err.Error()})
 			return
 		}
 		switch msg.Type {
@@ -142,7 +146,7 @@ func gameWSHandler(w http.ResponseWriter, r *http.Request) {
 				_ = ws.writeJSON(serverMessage{Type: "error", Error: "missing index"})
 				continue
 			}
-			if err := applyPlayCard(gameID, playerID, *msg.Index); err != nil {
+			if err := applyPlayCard(gameID, playerID, *msg.Index, msg.CardLocation); err != nil {
 				_ = ws.writeJSON(serverMessage{Type: "error", Error: err.Error()})
 				continue
 			}
@@ -165,7 +169,30 @@ func gameWSHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func applyPlayCard(gameID, playerID string, index int) error {
+type CardLocation int
+
+const (
+	Table CardLocation = iota
+	DrawPile
+	DiscardPile
+)
+
+var cardLocationNames = map[string]CardLocation{
+	"table":        Table,
+	"draw_pile":    DrawPile,
+	"discard_pile": DiscardPile,
+}
+
+func (s *CardLocation) UnmarshalJSON(data []byte) error {
+	var name string
+	if err := json.Unmarshal(data, &name); err != nil {
+		return fmt.Errorf("CardLocation must be a JSON string: %w", err)
+	}
+	*s = cardLocationNames[name]
+	return nil
+}
+
+func applyPlayCard(gameID, playerID string, index int, destination CardLocation) error {
 	gamesMu.RLock()
 	game, ok := games[gameID]
 	gamesMu.RUnlock()
@@ -186,7 +213,14 @@ func applyPlayCard(gameID, playerID string, index int) error {
 
 	card := player.Hand[index]
 	player.Hand = append(player.Hand[:index], player.Hand[index+1:]...)
-	game.Table = append(game.Table, card)
+	switch destination {
+	case DrawPile:
+		game.DrawPile = append(game.DrawPile, card)
+	case DiscardPile:
+		game.DiscardPile = append(game.DiscardPile, card)
+	default:
+		game.Table = append(game.Table, card)
+	}
 	game.UpdatedAt = time.Now()
 	return nil
 }
