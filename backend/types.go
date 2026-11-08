@@ -20,15 +20,56 @@ type Player struct {
 	Hand []Card `json:"hand"`
 }
 
+func (p *Player) toApi() *PlayerApi {
+	return &PlayerApi{
+		ID:        p.ID,
+		Name:      p.Name,
+		HandCount: len(p.Hand),
+	}
+}
+
+type PlayerApi struct {
+	ID        string `json:"id"`
+	Name      string `json:"name"`
+	HandCount int    `json:"hand_count"`
+}
+
 type GameState struct {
 	sync.Mutex
-	ID          string             `json:"id"`
-	Players     map[string]*Player `json:"players"`
-	PlayerOrder []string           `json:"player_order"`
-	Table       []Card             `json:"table"`
-	DrawPile    []Card             `json:"-"`
-	DiscardPile []Card             `json:"-"`
-	UpdatedAt   time.Time          `json:"updated_at"`
+	ID                   string
+	Players              map[string]*Player
+	PlayerOrder          []string
+	Table                []Card
+	DrawPile             []Card
+	DiscardPile          []Card
+	UpdatedAt            time.Time
+	InitialHandCardCount int
+}
+
+func (g *GameState) toAPI(playerID string) GameStateApi {
+	result := GameStateApi{
+		ID:          g.ID,
+		Player:      *g.Players[playerID],
+		Players:     make(map[string]*PlayerApi, len(g.Players)-1),
+		PlayerOrder: g.PlayerOrder,
+		Table:       g.Table,
+		UpdatedAt:   g.UpdatedAt,
+	}
+	for key, player := range g.Players {
+		if key != playerID {
+			result.Players[key] = player.toApi()
+		}
+	}
+	return result
+}
+
+type GameStateApi struct {
+	ID          string                `json:"id"`
+	Player      Player                `json:"me"`
+	Players     map[string]*PlayerApi `json:"players"`
+	PlayerOrder []string              `json:"player_order"`
+	Table       []Card                `json:"table"`
+	UpdatedAt   time.Time             `json:"updated_at"`
 }
 
 var (
@@ -49,7 +90,7 @@ func newDeck() []Card {
 	return deck
 }
 
-func writeJSON(w http.ResponseWriter, status int, v interface{}) {
+func writeJSON(w http.ResponseWriter, status int, v map[string]string) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(status)
 	_ = json.NewEncoder(w).Encode(v)

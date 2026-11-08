@@ -19,6 +19,7 @@ export class Lobby {
 	form = this.fb.group({
 		name: ['', [Validators.required]],
 		gameId: ['', [Validators.pattern(/^[a-zA-Z0-9]*$/)]], // optional but must be alphanumeric if present
+		initialHandCardCount: ['', Validators.min(0)],
 	});
 
 	async onJoin() {
@@ -32,12 +33,14 @@ export class Lobby {
 
 		const name = this.form.value.name!.trim();
 		let gameId = (this.form.value.gameId || '').trim();
-
+		let initialHandCardCount = parseInt(this.form.value.initialHandCardCount || '', 10);
 		try {
 			if (!gameId) {
 				// create new game
 				const createResp = await firstValueFrom(
-					this.http.post<{ game_id: string }, {}>('/create', {}),
+					this.http.post<{ game_id: string }, {}>('/create', {
+						initialHandCardCount: initialHandCardCount,
+					}),
 				);
 				gameId = createResp.game_id;
 			}

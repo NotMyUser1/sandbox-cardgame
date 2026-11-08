@@ -15,9 +15,9 @@ type clientMessage struct {
 }
 
 type serverMessage struct {
-	Type  string      `json:"type"`
-	State interface{} `json:"state,omitempty"`
-	Error string      `json:"error,omitempty"`
+	Type  string        `json:"type"`
+	State *GameStateApi `json:"state,omitempty"`
+	Error string        `json:"error,omitempty"`
 }
 
 type wsConn struct {
@@ -26,7 +26,7 @@ type wsConn struct {
 	writeMu  sync.Mutex
 }
 
-func (c *wsConn) writeJSON(v interface{}) error {
+func (c *wsConn) writeJSON(v serverMessage) error {
 	c.writeMu.Lock()
 	defer c.writeMu.Unlock()
 	return c.conn.WriteJSON(v)
@@ -181,9 +181,9 @@ func applyPlayCard(gameID, playerID string, index int) error {
 
 func sendStateToConn(game *GameState, ws *wsConn) {
 	game.Lock()
-	state := buildGameState(game, ws.playerID)
+	state := game.toAPI(ws.playerID)
 	game.Unlock()
-	_ = ws.writeJSON(serverMessage{Type: "state", State: state})
+	_ = ws.writeJSON(serverMessage{Type: "state", State: &state})
 }
 
 func broadcastGameState(gameID string) {
@@ -204,39 +204,15 @@ func broadcastGameState(gameID string) {
 	}
 
 	game.Lock()
-	states := make(map[*wsConn]interface{}, len(conns))
+	states := make(map[*wsConn]GameStateApi, len(conns))
 	for _, ws := range conns {
-		states[ws] = buildGameState(game, ws.playerID)
+		states[ws] = game.toAPI(ws.playerID)
 	}
 	game.Unlock()
 
 	for ws, state := range states {
-		_ = ws.writeJSON(serverMessage{Type: "state", State: state})
+		_ = ws.writeJSON(serverMessage{Type: "state", State: &state})
 	}
-}
-
-func buildGameState(game *GameState, playerID string) map[string]interface{} {
-	resp := make(map[string]interface{})
-	resp["id"] = game.ID
-	resp["players"] = func() map[string]interface{} {
-		out := map[string]interface{}{}
-		for pid, p := range game.Players {
-			if playerID != "" && pid != playerID {
-				out[pid] = map[string]interface{}{
-					"id":         p.ID,
-					"name":       p.Name,
-					"hand_count": len(p.Hand),
-				}
-			} else {
-				out[pid] = p
-			}
-		}
-		return out
-	}()
-	resp["player_order"] = game.PlayerOrder
-	resp["table"] = game.Table
-	resp["updated_at"] = game.UpdatedAt
-	return resp
 }
 
 var (

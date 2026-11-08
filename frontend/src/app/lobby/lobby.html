@@ -15,6 +15,14 @@
 		<div class="error">Game ID must be alphanumeric.</div>
 	}
 
+	<label>
+		Number of hand cards (optional)
+		<input type="number" formControlName="initialHandCardCount" placeholder="5" (input)="form.get('initialHandCardCount')?.markAsTouched()" />
+	</label>
+	@if (form.controls.initialHandCardCount.invalid && form.controls.initialHandCardCount.touched) {
+		<div class="error">Number of hand cards must be at least 0</div>
+	}
+
 	<button [disabled]="loading() || form.invalid" type="submit">
 		@if (loading()) {
 			<ng-container>Joining...</ng-container>
