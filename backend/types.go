@@ -15,9 +15,10 @@ type Card struct {
 }
 
 type Player struct {
-	ID   string `json:"id"`
-	Name string `json:"name"`
-	Hand []Card `json:"hand"`
+	ID     string   `json:"id"`
+	Name   string   `json:"name"`
+	Hand   []Card   `json:"hand"`
+	Tricks [][]Card `json:"tricks"`
 }
 
 func (p *Player) toApi() *PlayerApi {
