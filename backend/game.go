@@ -153,6 +153,12 @@ func gameWSHandler(w http.ResponseWriter, r *http.Request) {
 				continue
 			}
 			broadcastGameState(gameID)
+		case "take_card":
+			if err := applyTakeCard(gameID, playerID); err != nil {
+				_ = ws.writeJSON(serverMessage{Type: "error", Error: err.Error()})
+				continue
+			}
+			broadcastGameState(gameID)
 		default:
 			_ = ws.writeJSON(serverMessage{Type: "error", Error: "unknown action"})
 		}
@@ -205,6 +211,30 @@ func applyTakeTrick(gameID, playerID string) error {
 		game.Table = []Card{}
 		game.UpdatedAt = time.Now()
 	}
+	return nil
+}
+
+func applyTakeCard(gameID, playerID string) error {
+	gamesMu.RLock()
+	game, ok := games[gameID]
+	gamesMu.RUnlock()
+	if !ok {
+		return errGameNotFound
+	}
+
+	game.Lock()
+	defer game.Unlock()
+
+	player, ok := game.Players[playerID]
+	if !ok {
+		return errPlayerNotInGame
+	}
+	if len(game.DrawPile) == 0 {
+		return errInvalidCardIndex
+	}
+	player.Hand = append(player.Hand, game.DrawPile[len(game.DrawPile)-1])
+	game.DrawPile = game.DrawPile[:len(game.DrawPile)-1]
+	game.UpdatedAt = time.Now()
 	return nil
 }
 
