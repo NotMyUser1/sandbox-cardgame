@@ -70,7 +70,7 @@ func joinGameHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	playerID := randomID()
-	player := &Player{ID: playerID, Name: body.Name}
+	player := &Player{ID: playerID, Name: body.Name, Tricks: make([][]Card, 0, 10)}
 
 	game.Lock()
 	n := min(len(game.DrawPile), game.InitialHandCardCount)
