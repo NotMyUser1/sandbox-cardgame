@@ -23,16 +23,18 @@ type Player struct {
 
 func (p *Player) toApi() *PlayerApi {
 	return &PlayerApi{
-		ID:        p.ID,
-		Name:      p.Name,
-		HandCount: len(p.Hand),
+		ID:         p.ID,
+		Name:       p.Name,
+		HandCount:  len(p.Hand),
+		TrickCount: len(p.Tricks),
 	}
 }
 
 type PlayerApi struct {
-	ID        string `json:"id"`
-	Name      string `json:"name"`
-	HandCount int    `json:"hand_count"`
+	ID         string `json:"id"`
+	Name       string `json:"name"`
+	HandCount  int    `json:"hand_count"`
+	TrickCount int    `json:"trick_count"`
 }
 
 type GameState struct {
