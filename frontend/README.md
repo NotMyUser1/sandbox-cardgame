@@ -48,28 +48,6 @@ To execute unit tests with the [Vitest](https://vitest.dev/) test runner, use th
 ng test
 ```
 
-## Running end-to-end tests
-
-This project uses [Playwright](https://playwright.dev/) for end-to-end (e2e) tests.
-
-Install Playwright browsers once:
-
-```bash
-npx playwright install
-```
-
-Then run:
-
-```bash
-npm run test:e2e
-```
-
-To open Playwright's interactive UI mode:
-
-```bash
-npm run test:e2e:ui
-```
-
 ## Additional Resources
 
 For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.

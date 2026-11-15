@@ -1,37 +1,33 @@
 {
-  "name": "frontend",
-  "version": "0.0.0",
-  "scripts": {
-    "ng": "ng",
-    "format": "prettier --write \"src/**/*.{ts,tsx,js,jsx,json,html,scss,css,md}\"",
-    "start": "ng serve --proxy-config proxy.conf.json",
-    "build": "ng build",
-    "watch": "ng build --watch --configuration development",
-    "test": "ng test",
-    "test:e2e": "playwright test",
-    "test:e2e:ui": "playwright test --ui"
-  },
-  "private": true,
-  "packageManager": "npm@10.9.2",
-  "dependencies": {
-    "@angular/common": "^22.2.5",
-    "@angular/compiler": "^22.2.5",
-    "@angular/core": "^22.2.5",
-    "@angular/forms": "^22.2.5",
-    "@angular/platform-browser": "^22.2.5",
-    "@angular/router": "^22.2.5",
-    "rxjs": "~7.8.0",
-    "tslib": "^2.3.0"
-  },
-  "devDependencies": {
-    "@angular/build": "^22.2.6",
-    "@angular/cli": "^22.2.6",
-    "@angular/compiler-cli": "^22.2.5",
-    "@playwright/test": "^1.59.1",
-    "@types/node": "^25.6.0",
-    "jsdom": "^29.0.0",
-    "prettier": "^3.8.1",
-    "typescript": "~6.0.3",
-    "vitest": "^5.1.0"
-  }
+	"name": "frontend",
+	"version": "0.0.0",
+	"scripts": {
+		"ng": "ng",
+		"format": "prettier --write \"src/**/*.{ts,tsx,js,jsx,json,html,scss,css,md}\"",
+		"start": "ng serve --proxy-config proxy.conf.json",
+		"build": "ng build",
+		"watch": "ng build --watch --configuration development",
+		"test": "ng test"
+	},
+	"private": true,
+	"packageManager": "npm@10.9.2",
+	"dependencies": {
+		"@angular/common": "^22.2.6",
+		"@angular/compiler": "^22.2.6",
+		"@angular/core": "^22.2.6",
+		"@angular/forms": "^22.2.6",
+		"@angular/platform-browser": "^22.2.6",
+		"@angular/router": "^22.2.6",
+		"rxjs": "~7.8.2",
+		"tslib": "^2.9.1"
+	},
+	"devDependencies": {
+		"@angular/build": "^22.2.7",
+		"@angular/cli": "^22.2.7",
+		"@types/node": "^26.6.6",
+		"jsdom": "^31.0.1",
+		"prettier": "^3.10.1",
+		"typescript": "~6.0.3",
+		"vitest": "^5.1.0"
+	}
 }
