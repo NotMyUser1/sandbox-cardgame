@@ -132,7 +132,7 @@ func gameWSHandler(w http.ResponseWriter, r *http.Request) {
 		_ = conn.Close()
 	}()
 
-	sendStateToConn(game, ws)
+	broadcastGameState(gameID)
 
 	for {
 		var msg clientMessage
@@ -150,22 +150,26 @@ func gameWSHandler(w http.ResponseWriter, r *http.Request) {
 				_ = ws.writeJSON(serverMessage{Type: "error", Error: err.Error()})
 				continue
 			}
-			broadcastGameState(gameID)
 		case "take_trick":
 			if err := applyTakeTrick(gameID, playerID); err != nil {
 				_ = ws.writeJSON(serverMessage{Type: "error", Error: err.Error()})
 				continue
 			}
-			broadcastGameState(gameID)
 		case "take_card":
 			if err := applyTakeCard(gameID, playerID); err != nil {
 				_ = ws.writeJSON(serverMessage{Type: "error", Error: err.Error()})
 				continue
 			}
-			broadcastGameState(gameID)
+		case "reveal_cards":
+			if err := applyRevealCards(gameID); err != nil {
+				_ = ws.writeJSON(serverMessage{Type: "error", Error: err.Error()})
+				continue
+			}
 		default:
 			_ = ws.writeJSON(serverMessage{Type: "error", Error: "unknown action"})
+			continue
 		}
+		broadcastGameState(gameID)
 	}
 }
 
@@ -272,11 +276,20 @@ func applyTakeCard(gameID, playerID string) error {
 	return nil
 }
 
-func sendStateToConn(game *GameState, ws *wsConn) {
+func applyRevealCards(gameID string) error {
+	gamesMu.RLock()
+	game, ok := games[gameID]
+	gamesMu.RUnlock()
+	if !ok {
+		return errGameNotFound
+	}
+
 	game.Lock()
-	state := game.toAPI(ws.playerID)
-	game.Unlock()
-	_ = ws.writeJSON(serverMessage{Type: "state", State: &state})
+	defer game.Unlock()
+
+	game.RevealCards = !game.RevealCards
+	game.UpdatedAt = time.Now()
+	return nil
 }
 
 func broadcastGameState(gameID string) {
@@ -299,7 +312,7 @@ func broadcastGameState(gameID string) {
 	game.Lock()
 	states := make(map[*wsConn]GameStateApi, len(conns))
 	for _, ws := range conns {
-		states[ws] = game.toAPI(ws.playerID)
+		states[ws] = game.toAPI(ws.playerID, game.RevealCards)
 	}
 	game.Unlock()
 

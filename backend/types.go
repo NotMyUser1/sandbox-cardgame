@@ -45,32 +45,37 @@ type GameState struct {
 	DiscardPile          []Card
 	UpdatedAt            time.Time
 	InitialHandCardCount int
+	RevealCards          bool
 }
 
-func (g *GameState) toAPI(playerID string) GameStateApi {
+func (g *GameState) toAPI(playerID string, reveal bool) GameStateApi {
 	result := GameStateApi{
 		ID:          g.ID,
 		Player:      *g.Players[playerID],
-		Players:     make(map[string]*PlayerApi, len(g.Players)-1),
+		Players:     make(map[string]*any, len(g.Players)-1),
 		PlayerOrder: g.PlayerOrder,
 		Table:       g.Table,
 		UpdatedAt:   g.UpdatedAt,
 	}
 	for key, player := range g.Players {
 		if key != playerID {
-			result.Players[key] = player.toApi()
+			playerApi := any(*player.toApi())
+			if reveal {
+				playerApi = any(*player)
+			}
+			result.Players[key] = &playerApi
 		}
 	}
 	return result
 }
 
 type GameStateApi struct {
-	ID          string                `json:"id"`
-	Player      Player                `json:"me"`
-	Players     map[string]*PlayerApi `json:"players"`
-	PlayerOrder []string              `json:"player_order"`
-	Table       []Card                `json:"table"`
-	UpdatedAt   time.Time             `json:"updated_at"`
+	ID          string          `json:"id"`
+	Player      Player          `json:"me"`
+	Players     map[string]*any `json:"players"`
+	PlayerOrder []string        `json:"player_order"`
+	Table       []Card          `json:"table"`
+	UpdatedAt   time.Time       `json:"updated_at"`
 }
 
 var (

@@ -33,6 +33,7 @@ func createGameHandler(w http.ResponseWriter, r *http.Request) {
 		DiscardPile:          []Card{},
 		UpdatedAt:            time.Now(),
 		InitialHandCardCount: initialHandCardCount,
+		RevealCards:          false,
 	}
 
 	gamesMu.Lock()
